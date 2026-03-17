@@ -2,7 +2,7 @@ import pandas as pd
 import pyodbc
 
 # -------------------------------------------------
-# CONFIGURAZIONE
+# CONFIGURAZIONE SQL SERVER
 # -------------------------------------------------
 USE_SQL_SERVER = False
 SQL_SERVER = "INSERISCI_SERVER"
@@ -10,9 +10,9 @@ SQL_DATABASE = "ROBOT_E12345"
 SQL_DRIVER = "ODBC Driver 17 for SQL Server"
 
 # -------------------------------------------------
-# DATI SIMULATI - ODP
+# ORDINI INIZIALI DEMO
 # -------------------------------------------------
-def get_odp_data():
+def get_orders_data():
     return pd.DataFrame([
         {
             "ID": 1,
@@ -20,7 +20,17 @@ def get_odp_data():
             "COMMESSA": "COMM_2026_001",
             "DES_PROD": "Telaio supporto metallico",
             "ARTICOLO": "ART_1001",
-            "QUANT_DA_PRODURRE": 20
+            "QUANT_DA_PRODURRE": 20,
+            "QTA_PRODOTTA": 20,
+            "STATO_ORDINE": "COMPLETATO",
+            "PRIORITARIO": False,
+            "SEQUENZA": 1,
+            "STAZIONE": "ST1",
+            "DATA_INSERIMENTO": "2026-03-15 08:00:00",
+            "TEMPO_INIZIO": "2026-03-15 08:10:00",
+            "TEMPO_FINE": "2026-03-15 08:16:00",
+            "TEMPO_ESECUZ": 360,
+            "ALLARME1": ""
         },
         {
             "ID": 2,
@@ -28,7 +38,17 @@ def get_odp_data():
             "COMMESSA": "COMM_2026_002",
             "DES_PROD": "Staffa laterale",
             "ARTICOLO": "ART_1002",
-            "QUANT_DA_PRODURRE": 35
+            "QUANT_DA_PRODURRE": 35,
+            "QTA_PRODOTTA": 12,
+            "STATO_ORDINE": "IN_LAVORAZIONE",
+            "PRIORITARIO": False,
+            "SEQUENZA": 2,
+            "STAZIONE": "ST1",
+            "DATA_INSERIMENTO": "2026-03-16 08:00:00",
+            "TEMPO_INIZIO": "2026-03-16 09:30:00",
+            "TEMPO_FINE": None,
+            "TEMPO_ESECUZ": 180,
+            "ALLARME1": ""
         },
         {
             "ID": 3,
@@ -36,72 +56,35 @@ def get_odp_data():
             "COMMESSA": "COMM_2026_003",
             "DES_PROD": "Piastra base",
             "ARTICOLO": "ART_1003",
-            "QUANT_DA_PRODURRE": 15
-        }
-    ])
-
-
-# -------------------------------------------------
-# DATI SIMULATI - AVANZAMENTI
-# Nota:
-# - un record con ALLARME1 valorizzato farà apparire
-#   lo stato macchina come "🔴 Con allarme attivo"
-# -------------------------------------------------
-def get_avanzamenti_data():
-    return pd.DataFrame([
-        {
-            "ID_SQL": 1,
-            "DATA_GG": 16,
-            "DATA_MM": 3,
-            "DATA_AA": 2026,
-            "HH": 8,
-            "MIN": 15,
-            "SEC": 0,
-            "OPERATORE": "OP01",
-            "STAZIONE": "ST1",
-            "PROGRAMMA": "PRG_SALD_01",
-            "COMMESSA": "COMM_2026_001",
-            "ARTICOLO": "ART_1001",
-            "TEMPO_ESECUZ": 180,
-            "QTA_PRODOTTA": 12,
-            "FLAG_FINITO": 1,
-            "ALLARME1": ""
-        },
-        {
-            "ID_SQL": 2,
-            "DATA_GG": 16,
-            "DATA_MM": 3,
-            "DATA_AA": 2026,
-            "HH": 9,
-            "MIN": 40,
-            "SEC": 0,
-            "OPERATORE": "OP02",
-            "STAZIONE": "ST2",
-            "PROGRAMMA": "PRG_SALD_02",
-            "COMMESSA": "COMM_2026_002",
-            "ARTICOLO": "ART_1002",
-            "TEMPO_ESECUZ": 240,
-            "QTA_PRODOTTA": 35,
-            "FLAG_FINITO": 299,
-            "ALLARME1": ""
-        },
-        {
-            "ID_SQL": 3,
-            "DATA_GG": 16,
-            "DATA_MM": 3,
-            "DATA_AA": 2026,
-            "HH": 10,
-            "MIN": 5,
-            "SEC": 0,
-            "OPERATORE": "OP03",
-            "STAZIONE": "ST1",
-            "PROGRAMMA": "PRG_SALD_03",
-            "COMMESSA": "COMM_2026_003",
-            "ARTICOLO": "ART_1003",
-            "TEMPO_ESECUZ": 0,
+            "QUANT_DA_PRODURRE": 15,
             "QTA_PRODOTTA": 0,
-            "FLAG_FINITO": 1,
-            "ALLARME1": "Verifica posizionamento pezzo"
+            "STATO_ORDINE": "DA_LAVORARE",
+            "PRIORITARIO": True,
+            "SEQUENZA": 3,
+            "STAZIONE": "ST1",
+            "DATA_INSERIMENTO": "2026-03-16 09:00:00",
+            "TEMPO_INIZIO": None,
+            "TEMPO_FINE": None,
+            "TEMPO_ESECUZ": 0,
+            "ALLARME1": ""
+        },
+        {
+            "ID": 4,
+            "PROGRAMMA": "PRG_SALD_04",
+            "COMMESSA": "COMM_2026_004",
+            "DES_PROD": "Supporto angolare",
+            "ARTICOLO": "ART_1004",
+            "QUANT_DA_PRODURRE": 18,
+            "QTA_PRODOTTA": 0,
+            "STATO_ORDINE": "DA_LAVORARE",
+            "PRIORITARIO": False,
+            "SEQUENZA": 4,
+            "STAZIONE": "ST1",
+            "DATA_INSERIMENTO": "2026-03-16 10:00:00",
+            "TEMPO_INIZIO": None,
+            "TEMPO_FINE": None,
+            "TEMPO_ESECUZ": 0,
+            "ALLARME1": ""
         }
     ])
 
@@ -122,7 +105,7 @@ def get_sql_connection():
 # -------------------------------------------------
 # LETTURA SQL - ODP
 # -------------------------------------------------
-def get_odp_from_sql():
+def get_orders_from_sql():
     if not USE_SQL_SERVER:
         return None
 
@@ -133,23 +116,5 @@ def get_odp_from_sql():
         conn.close()
         return df
     except Exception as e:
-        print("Errore lettura ODP da SQL Server:", e)
-        return None
-
-
-# -------------------------------------------------
-# LETTURA SQL - AVANZAMENTI
-# -------------------------------------------------
-def get_avanzamenti_from_sql():
-    if not USE_SQL_SERVER:
-        return None
-
-    try:
-        conn = get_sql_connection()
-        query = "SELECT * FROM AVANZAMENTI"
-        df = pd.read_sql(query, conn)
-        conn.close()
-        return df
-    except Exception as e:
-        print("Errore lettura AVANZAMENTI da SQL Server:", e)
+        print("Errore lettura ordini da SQL Server:", e)
         return None

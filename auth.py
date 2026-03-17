@@ -1,9 +1,5 @@
 import streamlit as st
 
-# -------------------------------------------------
-# UTENTI DEMO
-# Da sostituire in produzione con AD / SSO / LDAP
-# -------------------------------------------------
 USERS = {
     "operatore": {
         "password": "1234",
